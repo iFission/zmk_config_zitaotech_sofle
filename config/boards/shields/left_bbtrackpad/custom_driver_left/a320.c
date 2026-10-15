@@ -61,6 +61,7 @@ static struct k_work_q a320_workq;
 // --- 防误触锁定比例配置 ---
 #define DOMINANT_NUMERATOR CONFIG_A320_DOMINANT_NUMERATOR
 #define DOMINANT_DENOMINATOR CONFIG_A320_DOMINANT_DENOMINATOR
+#define A320_ALWAYS_SCROLL 1
 
 // --- 鼠标指针基础配置 (Kconfig 为整数百分比，这里除以 100 转为浮点数) ---
 #define MOUSE_BASE_SPEED (CONFIG_A320_MOUSE_BASE_SPEED_PERCENT / 100.0f)
@@ -317,7 +318,7 @@ static void a320_work_cb(struct k_work *work) {
     bool just_enter_arrow = arrow_key_pressed && !last_arrow_key_pressed;
     bool capslock = current_indicators & HID_INDICATORS_CAPS_LOCK;
 
-    if (arrow_key_pressed) {
+    if (!A320_ALWAYS_SCROLL && arrow_key_pressed) {
 
         if (just_enter_arrow) {
             data->arrow_residue_x = dx;
@@ -339,7 +340,7 @@ static void a320_work_cb(struct k_work *work) {
         process_arrow_axis(dev, dx, &data->arrow_residue_x, INPUT_BTN_1, INPUT_BTN_0);
 
         process_arrow_axis(dev, dy, &data->arrow_residue_y, INPUT_BTN_3, INPUT_BTN_2);
-    } else if (scroll_key_pressed || capslock) {
+    } else if (A320_ALWAYS_SCROLL || scroll_key_pressed || capslock) {
 
         if (just_enter_scroll) {
             data->scroll_residue_x = dx * SCROLL_X_DIR;
