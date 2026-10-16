@@ -131,9 +131,12 @@ static void polling_work_handler(struct k_work *work) {
         if (!usb_mode) {
             /* 进入 USB 模式：启动闪烁任务 */
             usb_mode = true;
-            usb_flash_state = false;
-            k_work_reschedule(&usb_flash_work, K_NO_WAIT);
-            LOG_INF("Entered USB flash mode");
+
+            k_work_cancel_delayable(&usb_flash_work);
+            k_work_cancel_delayable(&animation_work);
+            k_work_cancel_delayable(&auto_off_work);
+
+            set_led_brightness(0);
         }
         /* 不再执行 BLE 逻辑 */
         k_work_reschedule(&polling_work, K_MSEC(POLLING_INTERVAL_MS));
